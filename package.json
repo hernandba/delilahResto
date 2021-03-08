@@ -1,0 +1,25 @@
+{
+  "name": "delilahresto",
+  "version": "1.0.0",
+  "description": "Sistema de pedidos y administracion online para restaurante",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hernandba/delilahResto.git"
+  },
+  "keywords": [
+    "pedidos",
+    "restaurante",
+    "nodeJS",
+    "mySQL"
+  ],
+  "author": "Hernan D Belalcazar A",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hernandba/delilahResto/issues"
+  },
+  "homepage": "https://github.com/hernandba/delilahResto#readme"
+}
