@@ -19,14 +19,37 @@ const only_admin = (req, res, next) => {
   }
 }
 
-/* ----------------------------- RUTA /usuarios ----------------------------- */
-app.get('/users', only_admin, (req, res) => {
-  res.send('Se listan todos los usuarios');
+/* --------------------------------- ROUTE / -------------------------------- */
+app.post('/', (req, res) => {
+  //Identificar y hacer login
 });
 
+/* ----------------------------- ROUTE /users ----------------------------- */
 app.post('/users', (req, res) => {
-  res.send('Un nuevo usuario podra registrarse');
+  //Registrar nuevo usuario
 });
+
+app.get('/users/:id/favs', (req, res) => {
+  //Obtener los favoritos de un determinado usuario
+})
+
+/* ------------------------------ ROUTE /orders ----------------------------- */
+app.get('/orders', only_admin, (req, res) => {
+  //Se muestran todos los pedidos
+});
+
+app.get('/orders/:id', (req, res) => {
+  //Obtener informacion de determinado pedido
+});
+
+app.post('/orders', (req, res) => {
+  //Crear un nuevo pedido
+});
+
+app.put('/orders/:id', only_admin, (req, res) => {
+  //Actualizar un pedido
+});
+
 
 /* ----------------------------- RUTA /productos ---------------------------- */
 app.get('/products', (req, res) => {
@@ -35,19 +58,6 @@ app.get('/products', (req, res) => {
 
 app.post('/products', only_admin, (req, res) => {
   res.send('Se crea un nuevo plato');
-});
-
-/* ----------------------------- RUTA /pedidos ---------------------------- */
-app.get('/orders', only_admin, (req, res) => {
-  res.send('Se listan todos los pedidos');
-});
-
-app.put('/orders', only_admin, (req, res) => {
-  res.send('Actualizar (el estado de) un pedido');
-});
-
-app.post('/orders', (req, res) => {
-  res.send('Crear un nuevo pedido');
 });
 
 app.use((req, res) => {
