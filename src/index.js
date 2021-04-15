@@ -1,23 +1,27 @@
 require('dotenv').config();
+const port = process.env.PORT;
 const express = require('express');
 const app = express();
-const port = process.env.PORT;
+const compression = require('compression');
+const helmet = require('helmet');
+const cors = require('cors');
+
+/* --------------------------- GLOBAL MIDDLEWARES --------------------------- */
+app.use(express.json());
+app.use(compression(), helmet(), cors());
+
+const only_admin = (req, res, next) => {
+  //Validation
+  if (true) {
+    next();
+  } else {
+    res.status(400).send('Invalid Request: No Admin')
+  }
+}
 
 /* --------------------------------- ROUTERS -------------------------------- */
 // const r_usuarios = require('../routes/r_usuarios.js');
 // app.use('/usuarios', r_usuarios);
-
-/* --------------------------- GLOBAL MIDDLEWARES --------------------------- */
-app.use(express.json());
-
-const only_admin = (req, res, next) => {
-  //Validation
-  if(true){
-    next();
-  }else{
-    res.status(400).send('Invalid Request: No Admin')
-  }
-}
 
 /* --------------------------------- ROUTE / -------------------------------- */
 app.post('/', (req, res) => {
@@ -60,8 +64,13 @@ app.post('/products', only_admin, (req, res) => {
   res.send('Se crea un nuevo plato');
 });
 
+app.use((err, req, res, next) => {
+  if (err) res.status(500).send(err);
+  next();
+});
+
 app.use((req, res) => {
-  res.status(404).send({error: 'Endpoint no disponible'});
+  res.status(404).send({error: 'Endpoint not found'});
 });
 
 app.listen(port, err => {
