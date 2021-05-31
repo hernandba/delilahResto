@@ -3,9 +3,9 @@ const sequelize = require('../connection');
 async function searchUser(credentialData){
     try {
         let result = await sequelize.query(
-            'SELECT id_user, username, email, password, admin FROM users WHERE username = :credential OR email = :credential',
+            'SELECT id_user, username, email, password, admin FROM users WHERE username = :username OR email = :email',
             {
-                replacements: {credential: credentialData},
+                replacements: credentialData,
                 type: sequelize.QueryTypes.SELECT
             }
         )
