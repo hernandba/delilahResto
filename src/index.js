@@ -1,44 +1,35 @@
 require('dotenv').config();
-const port = process.env.PORT;
-const express = require('express');
-const app = express();
-const compression = require('compression');
-const helmet = require('helmet');
-const cors = require('cors');
+
+const PORT = process.env.PORT,
+      ADMINKEY = process.env.ADMINKEY;
+
+const express = require('express'),
+      app = express();
+
+const compression = require('compression'),
+      helmet = require('helmet'),
+      cors = require('cors'),
+      jwt = require('jsonwebtoken'),
+      expressJwt = require('express-jwt');
 
 /* --------------------------- GLOBAL MIDDLEWARES --------------------------- */
-app.use(express.json());
-app.use(compression(), helmet(), cors());
+app.use(express.json(), compression(), helmet(), cors());
 
-const only_admin = (req, res, next) => {
-  //Validation
-  if (true) {
-    next();
-  } else {
-    res.status(400).send('Invalid Request: No Admin')
-  }
-}
-
-/* --------------------------------- ROUTERS -------------------------------- */
-// const r_usuarios = require('../routes/r_usuarios.js');
-// app.use('/usuarios', r_usuarios);
-
-/* --------------------------------- ROUTE / -------------------------------- */
-app.post('/', (req, res) => {
-  //Identificar y hacer login
-});
+/* --------------------------------- ROUTE /login -------------------------------- */
+const login = require('./routes/login')
+app.use('/login', login)
 
 /* ----------------------------- ROUTE /users ----------------------------- */
-app.post('/users', (req, res) => {
-  //Registrar nuevo usuario
-});
+const users = require('./routes/users')
+app.use('/users', users)
 
 app.get('/users/:id/favs', (req, res) => {
   //Obtener los favoritos de un determinado usuario
 })
 
 /* ------------------------------ ROUTE /orders ----------------------------- */
-app.get('/orders', only_admin, (req, res) => {
+app.get('/orders', (req, res) => {
+  //ONLY ADMIN
   //Se muestran todos los pedidos
 });
 
@@ -50,7 +41,8 @@ app.post('/orders', (req, res) => {
   //Crear un nuevo pedido
 });
 
-app.put('/orders/:id', only_admin, (req, res) => {
+app.put('/orders/:id', (req, res) => {
+  //ONLY ADMIN
   //Actualizar un pedido
 });
 
@@ -60,20 +52,26 @@ app.get('/products', (req, res) => {
   res.send('Se listan todos los productos');
 });
 
-app.post('/products', only_admin, (req, res) => {
+app.post('/products', (req, res) => {
+  //ONLY ADMIN
   res.send('Se crea un nuevo plato');
 });
 
+//Generic Error
 app.use((err, req, res, next) => {
-  if (err) res.status(500).send(err);
+  if (err) res.status(err.status).send(err);
   next();
 });
 
+//Endpoint not found error
 app.use((req, res) => {
-  res.status(404).send({error: 'Endpoint not found'});
+  res.status(404).send({
+    error: 'Endpoint not found'
+  });
 });
 
-app.listen(port, err => {
+//Connection
+app.listen(PORT, err => {
   if (err) console.log(err);
-  console.log('Server listening on PORT', port);
+  console.log('Server listening on PORT', PORT);
 });
