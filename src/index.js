@@ -15,33 +15,17 @@ const compression = require('compression'),
 /* --------------------------- GLOBAL MIDDLEWARES --------------------------- */
 app.use(express.json(), compression(), helmet(), cors());
 
-/* --------------------------------- ROUTE /login -------------------------------- */
+/* ------------------------------ ROUTE /login ------------------------------ */
 const login = require('./routes/login')
 app.use('/login', login)
 
-/* ----------------------------- ROUTE /users ----------------------------- */
+/* ------------------------------ ROUTE /users ------------------------------ */
 const users = require('./routes/users')
 app.use('/users', users)
 
 /* ------------------------------ ROUTE /orders ----------------------------- */
-app.get('/orders', (req, res) => {
-  //ONLY ADMIN
-  //Se muestran todos los pedidos
-});
-
-app.get('/orders/:id', (req, res) => {
-  //Obtener informacion de determinado pedido
-});
-
-app.post('/orders', (req, res) => {
-  //Crear un nuevo pedido
-});
-
-app.put('/orders/:id', (req, res) => {
-  //ONLY ADMIN
-  //Actualizar un pedido
-});
-
+const orders = require('./routes/orders')
+app.use('/orders', orders)
 
 /* ----------------------------- RUTA /productos ---------------------------- */
 app.get('/products', (req, res) => {
