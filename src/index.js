@@ -23,10 +23,6 @@ app.use('/login', login)
 const users = require('./routes/users')
 app.use('/users', users)
 
-app.get('/users/:id/favs', (req, res) => {
-  //Obtener los favoritos de un determinado usuario
-})
-
 /* ------------------------------ ROUTE /orders ----------------------------- */
 app.get('/orders', (req, res) => {
   //ONLY ADMIN
@@ -73,5 +69,5 @@ app.use((req, res) => {
 //Connection
 app.listen(PORT, err => {
   if (err) console.log(err);
-  console.log('Server listening on PORT', PORT);
+  console.log('Server listening on PORT:', PORT);
 });
