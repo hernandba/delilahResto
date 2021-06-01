@@ -10,7 +10,7 @@ const validateNewUser = (req, res, next) => {
         })
     }
 
-    searchUser({username: username, email: email}).then(result => {
+    searchUser({username: username, email: email, id_user:""}).then(result => {
         const userExists = result;
         console.log(userExists);
 

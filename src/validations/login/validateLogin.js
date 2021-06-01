@@ -11,7 +11,7 @@ const validateLogin = (req, res, next) => {
         })
     }
 
-    searchUser({username: credential, email: credential}).then(result => {
+    searchUser({username: credential, email: credential, id_user:""}).then(result => {
         const userExists = result;
         console.log(userExists);
 
