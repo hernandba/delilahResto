@@ -34,7 +34,7 @@ router.route('')
 
 router.route('/:id_user/favs')
     .get(validateUserId, (req,res) => {
-        //TODO: Validacion de rol (token -> user||admin) para poder hacer peticion
+        //TODO: Validacion de rol (token -> user||admin) para poder hacer peticion -> ADMIN && USER
         const {id_user} = req.params;
 
         getFavsUser(id_user).then(result => {
