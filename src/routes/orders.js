@@ -8,9 +8,13 @@ const getAllOrders = require('../database/orders/getAllOrders')
 const getOrderDetailsById = require('../database/orders/getOrderDetailsById')
 const updateOrderSituationById = require('../database/orders/updateOrderSituationById')
 const getOrderSituationById = require('../database/orders/getOrderSituationById')
+const createOrder = require('../database/orders/createOrder')
+
+const createProductsPerOrder = require('../database/products_per_order/createProductsPerOrder')
 
 const validateOrderId = require('../validations/orders/validateOrderId');
 const validateSituationForOrder = require('../validations/orders/validateSituationForOrder');
+const validateNewOrderInfo = require('../validations/orders/validateNewOrderInfo');
 
 router.route('')
     .get((req, res) => {
@@ -26,9 +30,34 @@ router.route('')
             )
         })
     })
-    .post((req, res) => {
+    .post(validateNewOrderInfo, (req, res) => {
         //TODO: Validacion de rol (token -> user||admin) para poder hacer peticion -> ADMIN && USER
         //Crear un nuevo pedido
+        const {id_user, payment, products} = req.body; 
+
+        createOrder(id_user,payment).then(result => {
+            const id_newOrder = result;
+
+            createProductsPerOrder(id_newOrder,products).then( () => {
+
+                getOrderDetailsById(id_newOrder).then(r => {
+
+                    const {order_detail, products_detail} = r;
+                    res.status(200).send(
+                        {
+                            status: "OK",
+                            message: "New Order Created",
+                            data: {
+                                id_user: id_user,
+                                id_order: id_newOrder,
+                                products_detail: products_detail,
+                                order_detail: order_detail
+                            }
+                        }
+                    )
+                })
+            })
+        })
     })
 
 router.route('/:id_order')
