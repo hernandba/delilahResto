@@ -27,16 +27,11 @@ app.use('/users', users)
 const orders = require('./routes/orders')
 app.use('/orders', orders)
 
-/* ----------------------------- RUTA /productos ---------------------------- */
-app.get('/products', (req, res) => {
-  res.send('Se listan todos los productos');
-});
+/* ----------------------------- ROUTE /products ---------------------------- */
+const products = require('./routes/orders')
+app.use('/products', products)
 
-app.post('/products', (req, res) => {
-  //ONLY ADMIN
-  res.send('Se crea un nuevo plato');
-});
-
+/* ---------------------------------- ERROR --------------------------------- */
 //Generic Error
 app.use((err, req, res, next) => {
   if (err) res.status(err.status).send(err);
@@ -46,11 +41,12 @@ app.use((err, req, res, next) => {
 //Endpoint not found error
 app.use((req, res) => {
   res.status(404).send({
-    error: 'Endpoint not found'
-  });
+    status: 'Error',
+    message: 'Endpoint not found'
+  })
 });
 
-//Connection
+/* ------------------------------- CONNECTION ------------------------------- */
 app.listen(PORT, err => {
   if (err) console.log(err);
   console.log('Server listening on PORT:', PORT);
