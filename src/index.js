@@ -28,7 +28,7 @@ const orders = require('./routes/orders')
 app.use('/orders', orders)
 
 /* ----------------------------- ROUTE /products ---------------------------- */
-const products = require('./routes/orders')
+const products = require('./routes/products')
 app.use('/products', products)
 
 /* ---------------------------------- ERROR --------------------------------- */
