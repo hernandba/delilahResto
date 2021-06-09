@@ -88,11 +88,28 @@ router.route('/:id_order')
         const {situation} = req.body;
 
         updateOrderSituationById(id_order,situation).then(result => {
-            getOrderSituationById(id_order).then(newResult => {
+            getOrderDetailsById(id_order).then(newResult => {
                 res.status(200).send(
                     {
                         status: "OK",
                         message: "Order Situation Updated",
+                        data: newResult
+                    }
+                )
+            })
+        })
+    })
+    .delete((req,res) => {
+        //TODO: Validacion de rol (token -> user||admin) para poder hacer peticion -> ONLY ADMIN
+        //Actualizar estado de un pedido por id_pedido
+        const {id_order} = req.params;
+
+        updateOrderSituationById(id_order,'cancelado').then(result => {
+            getOrderDetailsById(id_order).then(newResult => {
+                res.status(200).send(
+                    {
+                        status: "OK",
+                        message: "Order Canceled",
                         data: newResult
                     }
                 )
