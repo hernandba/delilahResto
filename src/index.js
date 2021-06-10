@@ -34,7 +34,7 @@ app.use('/products', products)
 /* ---------------------------------- ERROR --------------------------------- */
 //Generic Error
 app.use((err, req, res, next) => {
-  if (err) res.status(err.status).send(err);
+  if (err) res.status(400).send({status: 'Error', message:'Unexpected Error'});
   next();
 });
 
