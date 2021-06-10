@@ -6,12 +6,12 @@ const router = express.Router();
 
 const validateNewUser = require('../validations/users/validateNewUser')
 const validateUserId = require('../validations/users/validateUserId')
-const createUser = require('../database/users/createUser');
+const validateUpdateUserInfo = require('../validations/users/validateUpdateUserInfo');
 
+const createUser = require('../database/users/createUser');
 const getAllUsers = require('../database/users/getAllUsers');
 const getFavsUser = require('../database/users/getFavsUser');
 const getUserById = require('../database/users/getUserById');
-const validateUpdateUserInfo = require('../validations/users/validateUpdateUserInfo');
 const updateUser = require('../database/users/updateUser');
 
 router.route('')
