@@ -7,7 +7,11 @@ const router = express.Router();
 const getAllproducts = require('../database/products/getAllProducts')
 
 const validateNewProductInfo = require('../validations/products/validateNewProductInfo');
-const createProduct = require('../database/products/createProduct')
+const createProduct = require('../database/products/createProduct');
+const validateProductId = require('../validations/products/validateProductId');
+const getProductById = require('../database/products/getProductById');
+const updateProduct = require('../database/products/updateProduct');
+const deleteProduct = require('../database/products/deleteProduct');
 
 router.route('')
     .get((req,res) => {
@@ -41,6 +45,54 @@ router.route('')
                     }
                 }
             )
+        })
+    })
+
+router.route('/:id_product')
+    .get(validateProductId, (req, res) => {
+        //ALL
+        //Obtiene la informacion de un producto con su id
+        const {id_product} = req.params;
+        getProductById(id_product).then(result => {
+            res.status(200).send({
+                status: 'OK',
+                message: 'Product Info',
+                data: result
+            })
+        })
+    })
+    .put(validateProductId, validateNewProductInfo, (req, res) => {
+        //ADMIN
+        //Actualiza la informacion de un producto
+        const {id_product} = req.params;
+        const {name, ref, price} = req.body;
+        const new_product_data = [`name = '${name}'`, `ref = '${ref}'`, `price = '${price}'`]
+        updateProduct(id_product, new_product_data).then(result => {
+            getProductById(id_product).then(product_info => {
+                res.status(200).send({
+                    status: 'OK',
+                    message: 'Product Info Updated',
+                    data: {
+                        id_product: id_product,
+                        product_info: product_info
+                    }
+                })
+            })
+        })
+    })
+    .delete(validateProductId, (req, res) => {
+        //ADMIN
+        //Elimina un producto
+        const {id_product} = req.params;
+        deleteProduct(id_product).then(result => {
+            res.status(200).send({
+                status: 'OK',
+                message: 'Product Deleted',
+                data: {
+                    id_product: id_product,
+                    data: result
+                }
+            })
         })
     })
 
