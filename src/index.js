@@ -9,11 +9,12 @@ const express = require('express'),
 const compression = require('compression'),
       helmet = require('helmet'),
       cors = require('cors'),
-      jwt = require('jsonwebtoken'),
-      expressJwt = require('express-jwt');
+      expressJWT = require('express-jwt');
 
 /* --------------------------- GLOBAL MIDDLEWARES --------------------------- */
 app.use(express.json(), compression(), helmet(), cors());
+//Global token validation
+app.use(expressJWT({ secret: ADMINKEY, algorithms: ['HS256'] }).unless({ path: ["/login"] }));
 
 /* ------------------------------ ROUTE /login ------------------------------ */
 const login = require('./routes/login')
@@ -32,18 +33,18 @@ const products = require('./routes/products')
 app.use('/products', products)
 
 /* ---------------------------------- ERROR --------------------------------- */
-//Generic Error
-app.use((err, req, res, next) => {
-  if (err) res.status(400).send({status: 'Error', message:'Unexpected Error'});
-  next();
-});
-
 //Endpoint not found error
 app.use((req, res) => {
   res.status(404).send({
     status: 'Error',
     message: 'Endpoint not found'
   })
+});
+
+// Generic Error (MUST BE LAST)
+app.use((err, req, res, next) => {
+  if (err) res.status(err.status).send({status: 'Error', message: err});
+  // next();
 });
 
 /* ------------------------------- CONNECTION ------------------------------- */
