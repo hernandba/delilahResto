@@ -14,7 +14,7 @@ const compression = require('compression'),
 /* --------------------------- GLOBAL MIDDLEWARES --------------------------- */
 app.use(express.json(), compression(), helmet(), cors());
 //Global token validation
-app.use(expressJWT({ secret: ADMINKEY, algorithms: ['HS256'] }).unless({ path: ["/login"] }));
+app.use(expressJWT({ secret: ADMINKEY, algorithms: ['HS256'] }).unless({ path: ["/login", "/users/register"] }));
 
 /* ------------------------------ ROUTE /login ------------------------------ */
 const login = require('./routes/login')
