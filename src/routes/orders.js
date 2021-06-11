@@ -12,13 +12,15 @@ const createOrder = require('../database/orders/createOrder')
 
 const createProductsPerOrder = require('../database/products_per_order/createProductsPerOrder')
 
-const validateOrderId = require('../validations/orders/validateOrderId');
 const validateSituationForOrder = require('../validations/orders/validateSituationForOrder');
+const validateOrderId = require('../validations/orders/validateOrderId');
 const validateNewOrderInfo = require('../validations/orders/validateNewOrderInfo');
 
+const authAdmin = require('../auth/authAdmin');
+
 router.route('')
-    .get((req, res) => {
-        //TODO: Validacion de rol (token -> user||admin) para poder hacer peticion -> ONLY ADMIN
+    .get(authAdmin, (req, res) => {
+        //ADMIN
         //Mostrar todos los pedidos
         getAllOrders().then(result => {
             res.status(200).send(
@@ -31,7 +33,7 @@ router.route('')
         })
     })
     .post(validateNewOrderInfo, (req, res) => {
-        //TODO: Validacion de rol (token -> user||admin) para poder hacer peticion -> ADMIN && USER
+        //ALL
         //Crear un nuevo pedido
         const {id_user, payment, products} = req.body; 
 
@@ -62,7 +64,7 @@ router.route('')
 
 router.route('/:id_order')
     .get(validateOrderId, (req, res) => {
-        //TODO: Validacion de rol (token -> user||admin) para poder hacer peticion -> ADMIN && USER
+        //ALL
         //Obtener informacion de un pedido por id_pedido
         const {id_order} = req.params;
 
@@ -81,8 +83,8 @@ router.route('/:id_order')
             )
         })
     })
-    .put(validateSituationForOrder, (req, res) => {
-        //TODO: Validacion de rol (token -> user||admin) para poder hacer peticion -> ONLY ADMIN
+    .put(authAdmin, validateSituationForOrder, (req, res) => {
+        //ADMIN
         //Actualizar estado de un pedido por id_pedido
         const {id_order} = req.params;
         const {situation} = req.body;
@@ -99,8 +101,8 @@ router.route('/:id_order')
             })
         })
     })
-    .delete((req,res) => {
-        //TODO: Validacion de rol (token -> user||admin) para poder hacer peticion -> ONLY ADMIN
+    .delete(authAdmin, (req,res) => {
+        //ADMIN
         //Actualizar estado de un pedido por id_pedido
         const {id_order} = req.params;
 

@@ -14,8 +14,10 @@ const getFavsUser = require('../database/users/getFavsUser');
 const getUserById = require('../database/users/getUserById');
 const updateUser = require('../database/users/updateUser');
 
+const authAdmin = require('../auth/authAdmin');
+
 router.route('')
-    .get((req, res) => {
+    .get(authAdmin, (req, res) => {
         //ADMIN
         //Obtener informacion de todos los usuarios
         const {admin} = req.query;

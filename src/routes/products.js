@@ -13,9 +13,11 @@ const getProductById = require('../database/products/getProductById');
 const updateProduct = require('../database/products/updateProduct');
 const deleteProduct = require('../database/products/deleteProduct');
 
+const authAdmin = require('../auth/authAdmin');
+
 router.route('')
     .get((req,res) => {
-        //TODO: Validacion de rol (token -> user||admin) para poder hacer peticion -> ADMIN && USER
+        //ALL
         //Mostrar todos los productos
         getAllproducts().then(result => {
             res.status(200).send(
@@ -27,8 +29,8 @@ router.route('')
             )
         })
     })
-    .post(validateNewProductInfo, (req,res) => {
-        //TODO: Validacion de rol (token -> user||admin) para poder hacer peticion -> ONLY ADMIN
+    .post(authAdmin, validateNewProductInfo, (req,res) => {
+        //ADMIN
         //Crear un nuevo producto
         const {name, ref, price} = req.body;
 
@@ -61,7 +63,7 @@ router.route('/:id_product')
             })
         })
     })
-    .put(validateProductId, validateNewProductInfo, (req, res) => {
+    .put(authAdmin, validateProductId, validateNewProductInfo, (req, res) => {
         //ADMIN
         //Actualiza la informacion de un producto
         const {id_product} = req.params;
@@ -80,7 +82,7 @@ router.route('/:id_product')
             })
         })
     })
-    .delete(validateProductId, (req, res) => {
+    .delete(authAdmin, validateProductId, (req, res) => {
         //ADMIN
         //Elimina un producto
         const {id_product} = req.params;
