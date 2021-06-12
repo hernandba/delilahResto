@@ -23,8 +23,6 @@ const authAdmin = require('../auth/authAdmin');
 router.route('/register').post(validateNewUser, (req, res) => {
     //ALL
     //Registrar nuevo usuario
-    const {username, fullname, email, phone, address} = req.body;
-
     createUser(req.body).then(result => {
         res.status(200).send(
             {
@@ -81,7 +79,7 @@ router.route('/:id_user')
         })
     })
     .put(authAdmin, validateUserId, validateUpdateUserInfo, (req,res) => {
-        //ALL
+        //ADMIN
         //Modificar informacion de un usuario por id
         const {id_user} = req.params
         // let {username, fullname, email, phone, address, password} = req.body;
