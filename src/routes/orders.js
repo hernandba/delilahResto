@@ -1,6 +1,9 @@
 /* -------------------------------------------------------------------------- */
 /*                                ROUTE /orders                               */
 /* -------------------------------------------------------------------------- */
+require('dotenv').config();
+const ADMINKEY = process.env.ADMINKEY;
+const jwt = require('jsonwebtoken');
 const express = require('express')
 const router = express.Router();
 
@@ -17,9 +20,10 @@ const validateOrderId = require('../validations/orders/validateOrderId');
 const validateNewOrderInfo = require('../validations/orders/validateNewOrderInfo');
 
 const authAdmin = require('../auth/authAdmin');
+const getOrdersByUser = require('../database/orders/getOrdersByUser');
 
-router.route('')
-    .get(authAdmin, (req, res) => {
+// orders/all
+router.route('/all').get(authAdmin, (req, res) => {
         //ADMIN
         //Mostrar todos los pedidos
         getAllOrders().then(result => {
@@ -32,39 +36,11 @@ router.route('')
             )
         })
     })
-    .post(validateNewOrderInfo, (req, res) => {
-        //ALL
-        //Crear un nuevo pedido
-        const {id_user, payment, products} = req.body; 
 
-        createOrder(id_user,payment).then(result => {
-            const id_newOrder = result;
-
-            createProductsPerOrder(id_newOrder,products).then( () => {
-
-                getOrderDetailsById(id_newOrder).then(r => {
-
-                    const {order_detail, products_detail} = r;
-                    res.status(200).send(
-                        {
-                            status: "OK",
-                            message: "New Order Created",
-                            data: {
-                                id_user: id_user,
-                                id_order: id_newOrder,
-                                products_detail: products_detail,
-                                order_detail: order_detail
-                            }
-                        }
-                    )
-                })
-            })
-        })
-    })
-
+// orders/:id_order
 router.route('/:id_order')
-    .get(validateOrderId, (req, res) => {
-        //ALL
+    .get(authAdmin, validateOrderId, (req, res) => {
+        //ADMIN
         //Obtener informacion de un pedido por id_pedido
         const {id_order} = req.params;
 
@@ -103,7 +79,7 @@ router.route('/:id_order')
     })
     .delete(authAdmin, (req,res) => {
         //ADMIN
-        //Actualizar estado de un pedido por id_pedido
+        //Actualizar estado de un pedido a CANCELADO por id_pedido
         const {id_order} = req.params;
 
         updateOrderSituationById(id_order,'cancelado').then(result => {
@@ -115,6 +91,62 @@ router.route('/:id_order')
                         data: newResult
                     }
                 )
+            })
+        })
+    })
+
+// /orders
+router.route('')
+    .get((req, res) => {
+        //ALL
+        //Obtener informacion de un pedido por id_pedido
+        const { authorization } = req.headers;
+        const token = authorization.split(" ")[1];
+        const tokenDecoded = jwt.verify(token, ADMINKEY);
+
+        getOrdersByUser(tokenDecoded.id_user).then(result => {
+            res.status(200).send(
+                {
+                    status: "OK",
+                    message: "Orders By User",
+                    data: {
+                        id_user: tokenDecoded.id_user,
+                        orders: result
+                    }
+                }
+            )
+        })
+    })
+    .post(validateNewOrderInfo, (req, res) => {
+        //ALL
+        //Crear un nuevo pedido del usuario que inicio sesion
+        const {payment, products} = req.body;
+
+        const { authorization } = req.headers;
+        const token = authorization.split(" ")[1];
+        const tokenDecoded = jwt.verify(token, ADMINKEY);
+
+        createOrder(tokenDecoded.id_user, payment).then(result => {
+            const id_newOrder = result;
+
+            createProductsPerOrder(id_newOrder,products).then( () => {
+
+                getOrderDetailsById(id_newOrder).then(r => {
+
+                    const {order_detail, products_detail} = r;
+                    res.status(200).send(
+                        {
+                            status: "OK",
+                            message: "New Order Created",
+                            data: {
+                                id_user: tokenDecoded.id_user,
+                                id_order: id_newOrder,
+                                products_detail: products_detail,
+                                order_detail: order_detail
+                            }
+                        }
+                    )
+                })
             })
         })
     })
