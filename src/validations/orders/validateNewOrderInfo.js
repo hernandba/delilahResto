@@ -1,13 +1,18 @@
 const getRefProduct = require("../../database/products/getRefProduct");
 
 const validateNewOrderInfo = (req, res, next) => {
-    const {id_user, payment, products} = req.body;
+    const {payment, products} = req.body;
     const refsProducts = ['BagSal', 'HamClas', 'HamSpe', 'SanVeg', 'SanVeg', 'Veggie', 'Focaccia', 'SanFoc', 'VegAvo']
 
-    if(!id_user || !payment){
+    if(!payment){
         return res.status(400).send({
             status: 'error',
             message: 'Uncomplete Data'
+        })
+    }else if (payment !== 'efectivo' || payment !== 'tarjeta'){
+        return res.status(400).send({
+            status: 'error',
+            message: 'Wrong Payment Method'
         })
     }
 
