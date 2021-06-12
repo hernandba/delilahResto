@@ -1,0 +1,880 @@
+openapi: 3.0.1
+info:
+  title: Delilah Restó
+  description: API para gestión de pedidos de un restaurante. Los clientes pueden registrarse, ver el listado de productos y realizar ordenes. Los administradores pueden recibir pedidos y actualizarlos, crear y modificar productos y gestionar informacion de los usuarios
+  contact:
+    name: Hernan D Belalcazar A
+    url: https://github.com/hernandba/delilahResto
+    email: hernandba@gmail.com
+  license:
+    name: MIT
+    url: https://www.mit.edu/~amini/LICENSE.md
+  version: 1.0.0
+servers:
+- url: http://localhost:3000
+tags:
+- name: login
+  description: Login data validation and token response
+- name: users
+  description: User(s) registration and management
+- name: products
+  description: Products creation and management
+- name: orders
+  description: Orders creation and management
+paths:
+  /login:
+    post:
+      tags:
+      - login
+      summary: Inicio de sesion
+      operationId: validateLogin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - credential
+              - password
+              properties:
+                credential:
+                  type: string
+                  example: 'hernandba@gmail.com'
+                  description: 'Username or email'
+                password:
+                  type: string
+                  format: password
+                  example: 'h27sko9'
+                  description: 'Password'
+        required: true
+      responses:
+        200:
+          description: Succes login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'OK'
+                    description: 'Status'
+                  message:
+                    type: string
+                    example: 'Logged in'
+                    description: 'Message'
+                  token:
+                    type: string
+                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2wiOiJhZG1pbiJ9.szyWg9bna5_uxqh6XyMnS3cS3QCCKa8rV6w0wtYdcoQ'
+                    description: 'Token'
+  /users/register:
+    post:
+      tags:
+      - users
+      summary: Register new user
+      operationId: validateNewUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userData'
+        required: true
+      responses:
+        200:
+          description: successful user creation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userData'
+  /users/all:
+    get:
+      tags:
+      - users
+      summary: Obtiene el listado de los usuarios.
+      operationId: getUsers
+      security:
+        - bearerAuth: [admin]      
+      description: Solo el usuario admin puede obtener datos de usuarios
+      parameters:
+        - $ref: '#/components/parameters/Authorization'      
+      responses:
+        200:
+          description: Operación exitosa.
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: string
+                    example: 'OK'
+                  message:
+                    type: string
+                    example: 'All users info'
+                  data:
+                    $ref: '#/components/schemas/users'
+        default:
+          description: Error inesperado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/genericError'
+  /users/{id_user}:
+    get:
+      tags:
+      - users
+      summary: (ADMIN) Obtiene informacion de usuario por id
+      operationId: getUserById
+      security:
+        - bearerAuth: [admin]      
+      description: Solo el usuario admin puede obtener datos de un usuario especifico
+      parameters:
+      - name: id_user
+        in: path
+        required: true
+        schema:
+          type: string
+          example: '5'
+      responses:
+        200:
+          description: Operación exitosa.
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: string
+                    example: 'OK'
+                  message:
+                    type: string
+                    example: 'User Info'
+                  data:
+                    type: object
+                    properties:
+                      user_info:
+                        $ref: '#/components/schemas/userData'
+                      user_favs:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/product'
+        default:
+          description: Error inesperado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/genericError'
+    put:
+      tags:
+      - users
+      summary: (ADMIN) Modifica informacion de usuario por id
+      operationId: updateUserInfoById
+      security:
+        - bearerAuth: [admin]      
+      description: Solo el usuario admin puede modificar datos de un usuario especifico
+      parameters:
+      - name: id_user
+        in: path
+        required: true
+        schema:
+          type: string
+          example: '5'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userData'
+      responses:
+        200:
+          description: Operación exitosa.
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: string
+                    example: 'OK'
+                  message:
+                    type: string
+                    example: 'User Info Updated'
+                  data:
+                    type: object
+                    properties:
+                      user_info:
+                        $ref: '#/components/schemas/userData'
+        default:
+          description: Error inesperado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/genericError'
+  /users:
+    get:
+      tags:
+      - users
+      summary: Obtiene informacion de un usuario
+      operationId: getUser
+      security:
+        - bearerAuth: [admin]      
+      description: Quien inicio sesion puede obtener datos de su usuario
+      parameters:
+        - $ref: '#/components/parameters/Authorization' 
+      responses:
+        200:
+          description: Operación exitosa.
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: string
+                    example: 'OK'
+                  message:
+                    type: string
+                    example: 'User Info'
+                  data:
+                    type: object
+                    properties:
+                      user_info:
+                        $ref: '#/components/schemas/userData'
+                      user_favs:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/product'
+        default:
+          description: Error inesperado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/genericError'
+    put:
+      tags:
+      - users
+      summary: Modifica informacion de un usuario
+      operationId: updateUserInfo
+      description: Quien inicio sesion puede modificar datos de su usuario
+      parameters:
+        - $ref: '#/components/parameters/Authorization' 
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userData'
+      responses:
+        200:
+          description: Operación exitosa.
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: string
+                    example: 'OK'
+                  message:
+                    type: string
+                    example: 'User Info Updated'
+                  data:
+                    type: object
+                    properties:
+                      user_info:
+                        $ref: '#/components/schemas/userData'
+        default:
+          description: Error inesperado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/genericError'
+  /products:
+    get:
+      tags:
+      - products
+      summary: Get all products info
+      operationId: getProducts
+      security:
+        - bearerAuth: [admin]      
+      description: Gets information of all products
+      parameters:
+        - $ref: '#/components/parameters/Authorization' 
+      responses:
+        200:
+          description: Operación exitosa.
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: string
+                    example: 'OK'
+                  message:
+                    type: string
+                    example: 'All products'
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/product'
+        default:
+          description: Error inesperado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/genericError'
+    post:
+      tags:
+      - products
+      summary: (ADMIN) Crea un nuevo producto
+      operationId: createProduct
+      security:
+        - bearerAuth: [admin]    
+      description: Solo el admin puede crear un nuevo producto
+      parameters:
+        - $ref: '#/components/parameters/Authorization' 
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/product'
+      responses:
+        200:
+          description: Operación exitosa.
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: string
+                    example: 'OK'
+                  message:
+                    type: string
+                    example: 'Product Created'
+                  data:
+                    type: object
+                    properties:
+                      user_info:
+                        $ref: '#/components/schemas/product'
+        default:
+          description: Error inesperado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/genericError'
+  /products/{id_product}:
+    get:
+      tags:
+      - products
+      summary: Get product info by Id
+      operationId: getProductById
+      security:
+        - bearerAuth: [admin]      
+      description: Gets information of all products
+      parameters:
+      - name: id_product
+        in: path
+        required: true
+        schema:
+          type: string
+          example: '4'
+      responses:
+        200:
+          description: Operación exitosa.
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: string
+                    example: 'OK'
+                  message:
+                    type: string
+                    example: 'Product Info'
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/product'
+        default:
+          description: Error inesperado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/genericError'
+    put:
+      tags:
+      - products
+      summary: (ADMIN) Modifica la informacion de un producto
+      operationId: updateProduct
+      security:
+        - bearerAuth: [admin]    
+      description: (ADMIN) Solo el admin puede modificar un producto
+      parameters:
+      - name: id_product
+        in: path
+        required: true
+        schema:
+          type: string
+          example: '4'
+      - $ref: '#/components/parameters/Authorization' 
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/product'
+      responses:
+        200:
+          description: Operación exitosa.
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: string
+                    example: 'OK'
+                  message:
+                    type: string
+                    example: 'Product Info Updated'
+                  data:
+                    type: object
+                    properties:
+                      id_product:
+                        type: number
+                        example: '4'
+                      product_info:
+                        $ref: '#/components/schemas/product'
+        default:
+          description: Error inesperado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/genericError'
+    delete:
+      tags:
+      - products
+      summary: (ADMIN) Elimina la informacion de un producto
+      operationId: cancelProduct
+      security:
+        - bearerAuth: [admin]    
+      description: (ADMIN) Solo el admin puede eliminar un producto
+      parameters:
+      - name: id_product
+        in: path
+        required: true
+        schema:
+          type: string
+          example: '4'
+      - $ref: '#/components/parameters/Authorization' 
+      responses:
+        200:
+          description: Operación exitosa.
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: string
+                    example: 'OK'
+                  message:
+                    type: string
+                    example: 'Product Deleted'
+                  data:
+                    type: object
+                    properties:
+                      id_product:
+                        type: number
+                        example: '4'
+                      data:
+                        $ref: '#/components/schemas/product'
+        default:
+          description: Error inesperado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/genericError'
+  /orders/all:
+    get:
+      tags:
+      - orders
+      summary: Obtiene el listado de todas las ordenes.
+      operationId: getOrders
+      security:
+        - bearerAuth: [admin]      
+      description: Solo el usuario admin puede obtener info de todas las ordenes
+      parameters:
+        - $ref: '#/components/parameters/Authorization'      
+      responses:
+        200:
+          description: Operación exitosa.
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: string
+                    example: 'OK'
+                  message:
+                    type: string
+                    example: 'All orders'
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/order'
+        default:
+          description: Error inesperado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/genericError'
+  /orders/{id_order}:
+    get:
+      tags:
+      - orders
+      summary: (ADMIN) Get order info by Id
+      operationId: getOrderById
+      security:
+        - bearerAuth: [admin]      
+      description: Only admin gets information of an order
+      parameters:
+      - name: id_order
+        in: path
+        required: true
+        schema:
+          type: string
+          example: '4'
+      - $ref: '#/components/parameters/Authorization' 
+      responses:
+        200:
+          description: Operación exitosa.
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: string
+                    example: 'OK'
+                  message:
+                    type: string
+                    example: 'Order Info'
+                  data:
+                    $ref: '#/components/schemas/order'
+        default:
+          description: Error inesperado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/genericError'
+    put:
+      tags:
+      - orders
+      summary: (ADMIN) Update (situation) of order
+      operationId: updateOrder
+      security:
+        - bearerAuth: [admin]    
+      description: (ADMIN) Only admin updates situation of order
+      parameters:
+      - name: id_order
+        in: path
+        required: true
+        schema:
+          type: string
+          example: '4'
+      - $ref: '#/components/parameters/Authorization' 
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                situation:
+                  type: string
+                  example: 'ENVIANDO'
+      responses:
+        200:
+          description: Operación exitosa.
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: string
+                    example: 'OK'
+                  message:
+                    type: string
+                    example: 'Order Situation Updated'
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/order'
+        default:
+          description: Error inesperado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/genericError'
+    delete:
+      tags:
+      - orders
+      summary: (ADMIN) Cancel order
+      operationId: cancelOrder
+      security:
+        - bearerAuth: [admin]    
+      description: (ADMIN) Only admin can cancel order
+      parameters:
+      - name: id_order
+        in: path
+        required: true
+        schema:
+          type: string
+          example: '4'
+      - $ref: '#/components/parameters/Authorization' 
+      responses:
+        200:
+          description: Operación exitosa.
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: string
+                    example: 'OK'
+                  message:
+                    type: string
+                    example: 'Order Canceled'
+                  data:
+                    type: object
+                    properties:
+                      id_product:
+                        type: number
+                        example: '4'
+                      data:
+                        $ref: '#/components/schemas/order'
+        default:
+          description: Error inesperado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/genericError'
+  /orders:
+    get:
+      tags:
+      - orders
+      summary: Obtiene ordenes de usuario que inicio sesion
+      operationId: getUserOrders
+      security:
+        - bearerAuth: [admin]      
+      description: Quien inicio sesion puede obtener info de sus ordenes
+      responses:
+        200:
+          description: Operación exitosa.
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: string
+                    example: 'OK'
+                  message:
+                    type: string
+                    example: 'Orders By User'
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/orderDetail'
+        default:
+          description: Error inesperado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/genericError'
+    post:
+      tags:
+      - orders
+      summary: Creates order
+      operationId: createOrder
+      description: Quien inicio sesion puede crear una orden
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                payment:
+                  type: string
+                  example: 'tarjeta'
+                products:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/productOrder'
+      responses:
+        200:
+          description: Operación exitosa.
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: string
+                    example: 'OK'
+                  message:
+                    type: string
+                    example: 'New Order Created'
+                  data:
+                    type: object
+                    properties:
+                      id_user:
+                        type: number
+                        example: 9
+                      id_order:
+                        type: number
+                        example: 44
+                      products_detail:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/product'
+                      order_detail:
+                        $ref: '#/components/schemas/orderDetail'
+        default:
+          description: Error inesperado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/genericError'
+components:
+  schemas:
+    userData:
+      type: object
+      required:
+      - username
+      - fullname
+      - email
+      - phone
+      - addres
+      properties:
+        username:
+          type: string
+          example: 'hernandba'
+          description: 'Username'
+        fullname:
+          type: string
+          example: 'Hernan Belalcazar'
+          description: 'Full name'
+        email:
+          type: string
+          example: 'hernandba@gmail.com'
+          description: 'email'
+        phone:
+          type: string
+          example: '5718993456'
+          description: 'Phone number'
+        address:
+          type: string
+          example: '32 Silver Leaf Road'
+          description: 'address'
+        password:
+          type: string
+          example: 'h27sko9'
+          description: 'Password'
+    users:
+      type: object
+      properties:
+        username:
+          type: string
+        fullName:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        password:
+          type: string
+          format: password
+        address:
+          type: string
+        role:
+          type: boolean
+    product:
+      type: object
+      properties:
+        id_product:
+          type: number
+          example: 4
+        ref:
+          type: string
+          example: 'sand'
+        name:
+          type: string
+          example: 'Sandwich'
+        price:
+          type: number
+          example: 425
+    genericError:
+      type: object
+      properties:
+        status:
+          type: string
+          example: 'Error'
+        message:
+          type: string
+          example: 'Unexpected Error'
+    order:
+      type: object
+      properties:
+        situation: 
+          type: string
+          example: 'NUEVO'
+        date: 
+          type: string
+          example: '03:59 PM'
+        id_order: 
+          type: string
+          example: '44'
+        description:
+          type: string
+          example: '2xsanVeg 1xhamSpe'                    
+        total:
+          type: number
+          format: double
+          example: 2145                    
+        fullname:
+          type: string
+          example: 'Freddy Mercurie'                    
+        address:
+          type: string
+          example: '1 Logan Kensignton, London W8 6DE, Uk'
+    orderDetail:
+      type: object
+      properties:
+        situation: 
+          type: string
+          example: 'NUEVO'
+        date: 
+          type: string
+          example: '03:59 PM'
+        id_order: 
+          type: string
+          example: '44'
+        total:
+          type: number
+          format: double
+          example: 2145
+    productOrder:
+      type: object
+      properties:
+        ref:
+          type: string
+          example: 'sanVeg'
+        product_quantity:
+          type: number
+          example: 2
+  parameters:
+    Authorization:
+      name: authorization
+      in: header
+      required: true
+      schema:
+        type: string
+        example: 'Bearer sYFuat5lz1y5v0LrCt7LfqJpo1AkdLgm7LbY6eRibN4NYw9Srf6aMIRJM8KbTwM6'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
